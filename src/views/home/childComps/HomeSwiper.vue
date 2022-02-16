@@ -18,7 +18,7 @@
             default(){
               return []
             }
-          }
+          },
       },
       components:{
         Swiper,
