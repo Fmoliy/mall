@@ -1,16 +1,25 @@
 <template>
-    <div id="home">
+    <div id="home" class="wrapper">
         <nav-bar class="home-nav">
             <div slot="center">
                 购物街
             </div>
         </nav-bar>
-          <home-swiper :banners="banners"></home-swiper>
-          <recommend-view :recommends="recommends"></recommend-view>
-          <feature-view></feature-view>
-          <tab-control class="tab-control" :titles="['流行','新款','精选']"
-                       @tabClick="tabClick"></tab-control>
-          <goods-list :goods="showGoods"></goods-list>
+      <scroll class="content" ref="scroll"
+              :probe-type="3"
+              @scroll="contentScroll"
+              :pull-up-load="true"
+              @pullingUp="loadMore"
+      >
+        <home-swiper :banners="banners"></home-swiper>
+        <recommend-view :recommends="recommends"></recommend-view>
+        <feature-view></feature-view>
+        <tab-control class="tab-control" :titles="['流行','新款','精选']"
+                     @tabClick="tabClick"></tab-control>
+        <goods-list :goods="showGoods"></goods-list>
+      </scroll>
+<!--      监听组件的原生事件时需要加这个修饰符.native，才可以进行监听-->
+      <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
     </div>
 </template>
 
@@ -23,6 +32,7 @@
   import TabControl from "components/content/tabControl/TabControl";
   import GoodsList from "components/content/goods/GoodsList";
   import Scroll from "../../components/common/scroll/Scroll";
+  import BackTop from "../../components/content/backTop/BackTop";
 
   import {getHomeMultidata,getHomeGoods} from "../../network/home";
 
@@ -37,7 +47,8 @@
                 'new':{page:0,list:[]},
                 'sell':{page:0,list:[]},
               },
-              currentType:'pop'
+              currentType:'pop',
+              isShowBackTop:false,
           }
         },
       computed:{
@@ -52,7 +63,8 @@
           NavBar,
           TabControl,
           GoodsList,
-          Scroll
+          Scroll,
+          BackTop
         },
         created() {
           //1.请求多个数据
@@ -80,6 +92,19 @@
           }
             console.log(index);
           },
+        backClick(){
+          console.log('qqqq');
+          //ref
+          this.$refs.scroll.scrollTo(0,0)
+        },
+        contentScroll(position){
+          //console.log(position);
+          //position.y >1000
+          this.isShowBackTop=-position.y > 1000
+        },
+        loadMore(){
+          this.getHomeGoods(this.currentType)
+        },
           // 网络请求相关
         getHomeMultidata(){
             getHomeMultidata().then(res=>{
@@ -91,10 +116,12 @@
         getHomeGoods(type){
           const page=this.goods[type].page+1
           getHomeGoods(type,page).then(res=>{
-            console.log(res);
+            //console.log(res);
             //push(...)特殊语法
             this.goods[type].list.push(...res.data.list)
             this.goods[type].page+=1
+
+            this.$refs.scroll.finishPullUp()
           })
         },
       }
@@ -103,7 +130,9 @@
 
 <style scoped>
   #home{
-    padding-top: 44px;
+    /*padding-top: 44px;*/
+    height: 100vh;
+    position: relative;
   }
 .home-nav{
   background-color: var(--color-tint);
@@ -122,5 +151,16 @@
     z-index: 9;
   }
   .content{
+    overflow: hidden;
+    position: absolute;
+    top:44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
   }
+  /*.content{*/
+  /*  height: calc(100% - 93px);*/
+  /*  overflow: hidden;*/
+  /*  margin-top: 44px;*/
+  /*}*/
 </style>

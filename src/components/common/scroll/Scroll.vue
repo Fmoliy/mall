@@ -1,5 +1,5 @@
 <template>
-  <div ref="wrapper">
+  <div class="wrapper" ref="wrapper">
     <div class="content">
       <slot></slot>
     </div>
@@ -7,71 +7,55 @@
 </template>
 
 <script>
-  import BScroll from "@better-scroll/core"
+  import BScroll from 'better-scroll'
 
-	export default {
-		name: "Scroll",
-    props: {
-		  probeType: {
-		    type: Number,
-        default: 1
+  export default {
+    name: "Scroll",
+    props:{
+      probeType: {
+        type:Number,
+        default:0
       },
-      data: {
-		    type: Array,
-        default: () => {
-          return []
-        }
-      },
-      pullUpLoad: {
-		    type: Boolean,
-        default: false
+      pullUpLoad:{
+        type:Boolean,
+        default: 0
       }
     },
-    data() {
-		  return {
-		    scroll: {}
+    data(){
+      return{
+        scroll:null
       }
     },
     mounted() {
-		  setTimeout(this.__initScroll, 20)
-    },
-    methods: {
-		  __initScroll() {
-		    // 1.初始化BScroll对象
-		    if (!this.$refs.wrapper) return
-        this.scroll = new BScroll(this.$refs.wrapper, {
-          probeType: this.probeType,
-          click: true,
-          pullUpLoad: this.pullUpLoad
-        })
+      //1.创建BSsroll对象
+      this.scroll=new BScroll(this.$refs.wrapper,{
+        //click属性为true才可以监听div
+        click:true,
+        probeType:this.probeType,
+        pullUpLoad:this.pullUpLoad
+      })
 
-        // 2.将监听事件回调
-        this.scroll.on('scroll', pos => {
-          this.$emit('scroll', pos)
-        })
+      //2.监听滚动区域
+      this.scroll.on('scroll',(position)=>{
+        //console.log(position);
+        this.$emit('scroll',position)
+      })
 
-        // 3.监听上拉到底部
-        this.scroll.on('pullingUp', () => {
-          console.log('上拉加载');
-          this.$emit('pullingUp')
-        })
-      },
-      refresh() {
-        this.scroll && this.scroll.refresh && this.scroll.refresh()
-      },
-      finishPullUp() {
-		    this.scroll && this.scroll.finishPullUp && this.scroll.finishPullUp()
-      },
-      scrollTo(x, y, time) {
-		    this.scroll && this.scroll.scrollTo && this.scroll.scrollTo(x, y, time)
-      }
+      //3.监听上拉事件
+      this.scroll.on('pullingUp',()=>{
+        //console.log('上拉加载更多');
+        this.$emit('pullingUp')
+      })
     },
-    watch: {
-		  data() {
-        setTimeout(this.refresh, 20)
+    methods:{
+        scrollTo(x,y,time=1000){
+          this.scroll.scrollTo(x,y,time)
+      },
+      finishPullUp(){
+          this.scroll.finishPullUp()
       }
     }
-	}
+  }
 </script>
 
 <style scoped>
