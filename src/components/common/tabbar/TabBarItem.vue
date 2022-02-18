@@ -34,7 +34,7 @@
       computed:{
           isActive(){
             let paths=this.$route.path.indexOf(this.path)
-            console.log(paths);
+            //console.log(paths);
             return paths!==-1
           },
         activeStyle(){

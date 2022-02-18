@@ -17,10 +17,12 @@
 	export default {
 		name: "Swiper",
     props: {
+		  //轮播图轮播每个多少轮播一次
       interval: {
 		    type: Number,
-        default: 1000
+        default: 3000
       },
+      //轮播图轮播一张图片的动画时间
       animDuration: {
 		    type: Number,
         default: 300
